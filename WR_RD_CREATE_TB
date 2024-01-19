@@ -1,0 +1,357 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 12/19/2023 02:44:29 PM
+-- Design Name: 
+-- Module Name: WR_RD_CREATE_TB - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity WR_RD_CREATE_TB is
+end WR_RD_CREATE_TB;
+
+architecture Behavioral of WR_RD_CREATE_TB is
+
+
+
+Component WR_RD_CREATE is
+port (	
+  ARINC_818_Rx_VSYNC_RST     : in std_logic;  
+  user_clk                   : in std_logic;  
+  user_reset                 : in std_logic; 
+  lwr                        : out std_logic;  
+  lrd                        : out std_logic;  
+  laddr	                     : out std_logic_vector(31 downto 0);
+  lwr_data                   : out std_logic_vector(31 downto 0);
+  lrd_data                   : in std_logic_vector(31 downto 0);
+
+  s_axis_tx_tdata            : out std_logic_vector(63 downto 0);
+  s_axis_tx_tlast            : out std_logic;
+  s_axis_tx_tvalid           : out std_logic;
+  s_axis_tx_tkeep            : out std_logic_vector(7 downto 0);
+  s_axis_tx_tready           : in std_logic;			
+
+  m_axis_rx_tdata            : in std_logic_vector(63 downto 0);
+  m_axis_rx_tvalid           : in std_logic;
+  m_axis_rx_tlast            : in std_logic;
+  
+  ---DMA
+  DMA_RST                    : out std_logic; 
+  dma_cnt_sel                : out std_logic_vector(31 downto 0); 
+  current_descriptor2        : out std_logic_vector(2 downto 0); 
+  DMA_RD_EN                  : out std_logic;
+  DMA_FIFO_OUT               : in std_logic_vector(255 downto 0);
+  DMA_FIFO_RD_COUNT          : in  std_logic_vector(10 downto 0)  	
+);
+end component;
+
+
+
+	
+signal ARINC_818_Rx_VSYNC_RST : std_logic := '0';  
+signal user_clk               : std_logic ;  
+signal user_reset             : std_logic := '0'; 
+signal lwr                    : std_logic;  
+signal lrd                    : std_logic;  
+signal laddr	              : std_logic_vector(31 downto 0);
+signal lwr_data               : std_logic_vector(31 downto 0);
+signal lrd_data               : std_logic_vector(31 downto 0):= (others=>'0');
+
+signal s_axis_tx_tdata        : std_logic_vector(63 downto 0);
+signal s_axis_tx_tlast        : std_logic;
+signal s_axis_tx_tvalid       : std_logic;
+signal s_axis_tx_tkeep        : std_logic_vector(7 downto 0);
+signal s_axis_tx_tready       : std_logic := '0';			
+
+signal m_axis_rx_tdata        : std_logic_vector(63 downto 0):= (others=>'0');
+signal m_axis_rx_tvalid       : std_logic := '0';
+signal m_axis_rx_tlast        : std_logic := '0';
+
+ ---DM
+signal DMA_RST                : std_logic; 
+signal dma_cnt_sel            : std_logic_vector(31 downto 0); 
+signal current_descriptor2    : std_logic_vector(2 downto 0); 
+signal DMA_RD_EN              : std_logic;
+signal DMA_FIFO_OUT           : std_logic_vector(255 downto 0):= (others=>'0');
+signal DMA_FIFO_RD_COUNT      : std_logic_vector(10 downto 0):= (others=>'0');  	
+
+constant user_clk_period : time := 8ns ;
+
+
+begin
+
+write_read : WR_RD_CREATE 
+port map
+     ( ARINC_818_Rx_VSYNC_RST     => ARINC_818_Rx_VSYNC_RST, 
+     user_clk                   => user_clk,               
+     user_reset                 => user_reset,             
+     lwr                        => lwr,                    
+     lrd                        => lrd,                   
+     laddr	                   => laddr,	              
+     lwr_data                   => lwr_data,               
+     lrd_data                   => lrd_data,               
+ 
+     s_axis_tx_tdata            => s_axis_tx_tdata,        
+     s_axis_tx_tlast            => s_axis_tx_tlast,        
+     s_axis_tx_tvalid           => s_axis_tx_tvalid,      
+     s_axis_tx_tkeep            => s_axis_tx_tkeep,        
+     s_axis_tx_tready           => s_axis_tx_tready,       
+ 
+     m_axis_rx_tdata            => m_axis_rx_tdata,        
+     m_axis_rx_tvalid           => m_axis_rx_tvalid,       
+     m_axis_rx_tlast            => m_axis_rx_tlast,        
+ 
+ 
+     DMA_RST                    => DMA_RST,                
+     dma_cnt_sel                => dma_cnt_sel,            
+     current_descriptor2        => current_descriptor2,    
+     DMA_RD_EN                  => DMA_RD_EN,              
+     DMA_FIFO_OUT               => DMA_FIFO_OUT,           
+     DMA_FIFO_RD_COUNT          => DMA_FIFO_RD_COUNT
+                                    );
+                                          
+process
+begin
+user_clk <= '1';
+wait for user_clk_period / 2;
+user_clk <= '0';
+wait for user_clk_period / 2;
+end process;
+                                      
+--process
+--begin
+--user_reset <= '1';
+----ARINC_818_Rx_VSYNC_RST <= '0';
+----lrd_data <= x"00000000";
+----m_axis_rx_tdata <= X"0000000000000000";
+----m_axis_rx_tvalid <= '0';
+----m_axis_rx_tlast <= '0';
+----s_axis_tx_tready <= '0';
+----DMA_FIFO_OUT <= X"0000000000000000000000000000000000000000000000000000000000000000";
+----DMA_FIFO_RD_COUNT <= "00000000000";
+--wait for 24 ns;
+--user_reset <= '0';
+--wait;
+--end process;
+
+--process
+--begin
+--ARINC_818_Rx_VSYNC_RST <= '1';
+--wait for 8 ns;
+--ARINC_818_Rx_VSYNC_RST <= '0';
+--wait;
+--end process;
+
+
+process
+begin
+----- Testcase 1 ----
+----m_axis_rx_tdata <= X"AB12456f40000001";
+----wait for 8 ns;
+----ARINC_818_Rx_VSYNC_RST <= '1';
+--lrd_data <= x"0000000F";
+--m_axis_rx_tdata <= X"AB12456f40000001";
+--m_axis_rx_tvalid <= '1';
+--m_axis_rx_tlast <= '1';
+--s_axis_tx_tready <= '1';
+--DMA_FIFO_OUT <= X"AB124568AB124568AB124568AB124568AB124568AB124568AB124568AB124568";
+--DMA_FIFO_RD_COUNT <= "10101010101";
+--wait for 32 ns;
+
+------ Testcase 2 ----
+----m_axis_rx_tdata <= X"AB78390f00000001";
+----wait for 4 ns;
+----ARINC_818_Rx_VSYNC_RST <= '1';
+--lrd_data <= x"0000FFFF";
+--m_axis_rx_tdata <= X"AB78390f00000001";
+--m_axis_rx_tvalid <= '1';
+--m_axis_rx_tlast <= '1';
+--s_axis_tx_tready <= '1';
+--DMA_FIFO_OUT <= X"AB124568AB124568AB783901AB124568AB124568AB124568AB783901AB124568";
+--DMA_FIFO_RD_COUNT <= "11001011100";
+--wait for 32 ns;
+
+------ Testcase 3 ----
+--m_axis_rx_tdata <= X"AB12456f40000001";
+--ARINC_818_Rx_VSYNC_RST <= '1';
+--wait for 8 ns;
+--ARINC_818_Rx_VSYNC_RST <= '0';
+--lrd_data <= x"000ABFFF";
+--m_axis_rx_tdata <= X"AB12456f41200500";
+--m_axis_rx_tvalid <= '1';
+--m_axis_rx_tlast <= '1';
+--s_axis_tx_tready <= '1';
+--DMA_FIFO_OUT <= X"AB783901AB124568AB124568AB783901AB124568AB124568AB124568AB783901";
+--DMA_FIFO_RD_COUNT <= "10111100100";
+--wait for 24 ns;
+
+------ Testcase 4 ----
+--m_axis_rx_tdata <= X"AB12456f40000001";
+--ARINC_818_Rx_VSYNC_RST <= '1';
+--wait for 8 ns;
+--ARINC_818_Rx_VSYNC_RST <= '0';
+--lrd_data <= x"000ABFFF";
+--m_axis_rx_tdata <= X"AB12456f41200504";
+--m_axis_rx_tvalid <= '1';
+--m_axis_rx_tlast <= '1';
+--s_axis_tx_tready <= '1';
+--DMA_FIFO_OUT <= X"AB783901AB124568AB124568AB783901AB124568AB124568AB124568AB783901";
+--DMA_FIFO_RD_COUNT <= "10111100100";
+--wait for 80 ns;
+
+-------- Testcase 4 ----
+----ARINC_818_Rx_VSYNC_RST <= '1';
+----lrd_data <= x"580ABFFF";
+----m_axis_rx_tdata <= X"AB68AB11AB200504";
+----m_axis_rx_tvalid <= '1';
+----m_axis_rx_tlast <= '0';
+----s_axis_tx_tready <= '0';
+----DMA_FIFO_OUT <= X"AB68AB11AB124568AB68AB18AB78368AB1124568AB124568AB124568AB783901";
+----DMA_FIFO_RD_COUNT <= "10110011100";
+----wait for 80 ns;
+
+-------- Testcase 5 ----
+----ARINC_818_Rx_VSYNC_RST <= '1';
+----lrd_data <= x"580AB128";
+----m_axis_rx_tdata <= X"AB68580ABB200510";
+----m_axis_rx_tvalid <= '1';
+----m_axis_rx_tlast <= '0';
+----s_axis_tx_tready <= '0';
+----DMA_FIFO_OUT <= X"AB68A580AB124568AB68AB580AB836580AB24568AB12456580AB4568AB783901";
+----DMA_FIFO_RD_COUNT <= "00101100111";
+----wait for 80 ns;
+
+-------- Testcase 6 ----
+----ARINC_818_Rx_VSYNC_RST <= '1';
+----lrd_data <= x"580AB128";
+----m_axis_rx_tdata <= X"24568AB685200514";
+----m_axis_rx_tvalid <= '1';
+----m_axis_rx_tlast <= '0';
+----s_axis_tx_tready <= '0';
+----DMA_FIFO_OUT <= X"80AB124568AB68B836580AB24568AB12456580AB4568AB783901AB68A5AB580A";
+----DMA_FIFO_RD_COUNT <= "00101100111";
+----wait for 80 ns;
+
+
+-----DHinesh---
+--user_reset <= '1' ;
+--wait for user_clk_period*1;
+--user_reset <= '0' ;
+--m_axis_rx_tlast<= '1' ;
+--DMA_FIFO_RD_COUNT <= "00000000111";
+--m_axis_rx_tvalid <= '1' ;
+--m_axis_rx_tdata <= x"AB12456f40000001";
+--wait for user_clk_period*1 ;
+--m_axis_rx_tdata <= x"AB68AB11AB200504";
+--wait for user_clk_period*4 ;
+--ARINC_818_Rx_VSYNC_RST<= '1' ;
+--wait for user_clk_period*3 ;
+--ARINC_818_Rx_VSYNC_RST<= '0' ;
+--wait for user_clk_period*1 ;
+
+
+------
+user_reset <= '1' ;
+wait for user_clk_period*1;
+user_reset <= '0' ;
+m_axis_rx_tlast<= '1' ;
+DMA_FIFO_RD_COUNT <= "00000000111";
+s_axis_tx_tready <= '1';
+DMA_FIFO_OUT <= X"AB124568AB124568AB124568AB124568AB124568AB124568AB124568AB124568";
+m_axis_rx_tvalid <= '1' ;
+m_axis_rx_tdata <= x"AB12456f40000001";
+wait for user_clk_period*1 ;
+m_axis_rx_tdata <= x"AB68AB11AB200504";
+wait for user_clk_period*4 ;
+ARINC_818_Rx_VSYNC_RST<= '1' ;
+wait for user_clk_period*3 ;
+ARINC_818_Rx_VSYNC_RST<= '0' ;
+wait for user_clk_period*25 ;
+
+m_axis_rx_tdata <= x"AB12456f00000001";
+wait for user_clk_period*1 ;
+m_axis_rx_tdata <= x"AB68AB11AB200500";
+wait for user_clk_period*4 ;
+ARINC_818_Rx_VSYNC_RST<= '1' ;
+wait for user_clk_period*3 ;
+ARINC_818_Rx_VSYNC_RST<= '0' ;
+wait for user_clk_period*48 ;
+
+m_axis_rx_tdata <= x"AB12456f00000001";
+wait for user_clk_period*1 ;
+m_axis_rx_tdata <= x"AB68AB11AB200510";
+wait for user_clk_period*4 ;
+ARINC_818_Rx_VSYNC_RST<= '1' ;
+wait for user_clk_period*3 ;
+ARINC_818_Rx_VSYNC_RST<= '0' ;
+wait for user_clk_period*25 ;
+
+--wait for 100 ns;
+--user_reset <= '1' ;
+--wait for user_clk_period*1;
+--user_reset <= '0' ;
+--m_axis_rx_tlast<= '1' ;
+--DMA_FIFO_RD_COUNT <= "00000000111";
+--m_axis_rx_tvalid <= '1' ;
+--m_axis_rx_tdata <= x"AB12456f00000001";
+--wait for user_clk_period*1 ;
+--m_axis_rx_tdata <= x"AB68AB11AB200500";
+--wait for user_clk_period*4 ;
+--ARINC_818_Rx_VSYNC_RST<= '1' ;
+--wait for user_clk_period*3 ;
+--ARINC_818_Rx_VSYNC_RST<= '0' ;
+--wait for user_clk_period*1 ;
+
+
+--------------
+--user_reset <= '1' ;
+--wait for user_clk_period*1;
+--user_reset <= '0' ;
+--m_axis_rx_tlast<= '1' ;
+--DMA_FIFO_RD_COUNT <= "00000000111";
+--m_axis_rx_tvalid <= '1' ;
+----m_axis_rx_tdata <= x"AB12456f40000001";
+----wait for user_clk_period*1 ;
+--m_axis_rx_tdata <= x"AB12456f00000001";
+--wait for user_clk_period*1 ;
+--m_axis_rx_tdata <= x"AB12456f40000001";
+--wait for user_clk_period*1 ;
+--m_axis_rx_tdata <= x"AB68AB11AB200504";
+--wait for user_clk_period*2 ;
+--ARINC_818_Rx_VSYNC_RST<= '1' ;
+--wait for user_clk_period*1 ;
+--ARINC_818_Rx_VSYNC_RST<= '0' ;
+--wait for user_clk_period*1 ;
+
+
+
+
+
+wait ;
+end process;
+
+end Behavioral;
